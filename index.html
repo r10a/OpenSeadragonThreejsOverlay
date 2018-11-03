@@ -4,7 +4,7 @@
 <head>
     <title>OpenSeadragon Canvas Overlay Demo</title>
     <script src="openseadragon/openseadragon.js"></script>
-    <script src="js/openseadragon-canvas-overlay.js"></script>
+    <script src="openseadragon-threejs-overlay.js"></script>
     <script src="js/openseadragon-viewerinputhook.js"></script>
     <script src="js/three.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/sketch-js@1.1.3/js/sketch.js"></script> -->
@@ -58,7 +58,7 @@
 
                 var overlay = this.viewer.threejsOverlay();
                 console.log(overlay);
-                var camera, scene, geometry, material, index = 0, mesh, renderer = new THREE.WebGLRenderer(overlay.context3d());
+                var stats, camera, scene, geometry, material, index = 0, mesh, renderer = new THREE.WebGLRenderer(overlay.context3d());
                 var vec = new THREE.Vector3(); // create once and reuse
                 var pos = new THREE.Vector3(); // create once and reuse
 
@@ -135,11 +135,16 @@
                     camera.aspect = width / height;
                     renderer.setSize(width, height);
                     camera.updateProjectionMatrix();
+                    stats = new Stats();
+                    stats.dom.style.left = 'unset';
+                    stats.dom.style.right = '0px';
+                    document.body.appendChild(stats.dom)
 
                 }
 
                 function animate() {
                     requestAnimationFrame(animate);
+                    stats.update();
                     renderer.render(scene, camera);
                 }
             }
