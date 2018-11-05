@@ -28,6 +28,9 @@
 
         this._viewer = viewer;
 
+        this._vec = new THREE.Vector3(); // create once and reuse
+        this._pos = new THREE.Vector3(); // create once and reuse
+
         this._containerWidth = 0;
         this._containerHeight = 0;
 
@@ -43,6 +46,11 @@
         this._canvas = document.createElement('canvas');
         this._canvas.setAttribute('id', 'osd-overlaycanvas');
         this._canvasdiv.appendChild(this._canvas);
+
+        this._renderer = this.renderer();
+        this._camera = undefined;
+        this._scene = undefined;
+        this._stats = undefined;
         this.resize();
 
         // paper.setup(this._canvas);
@@ -69,6 +77,52 @@
         context3d: function () {
             return this._canvas.getContext('webgl');
         },
+        renderer: function () {
+            if (this._renderer) return this._renderer;
+            this._renderer = new THREE.WebGLRenderer(this.context3d());
+            this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+            return this._renderer;
+        },
+        camera: function () {
+            if (this._camera) return this._camera;
+            this._camera = new THREE.PerspectiveCamera(75, this._viewer.viewport.getAspectRatio(), 1, 10000);
+            this._camera.position.z = 1000;
+            this._camera.zoom = this._viewer.viewport.getZoom();
+            this._camera.updateProjectionMatrix();
+            return this._camera;
+        },
+        scene: function () {
+            return this._scene ? this._scene : new THREE.Scene();
+        },
+        sceneToWorld: function (x, y) {
+            // console.log("Scene coordinates: ", x, y)
+            this._vec.set(
+                (x / window.innerWidth) * 2 - 1,
+                - (y / window.innerHeight) * 2 + 1,
+                0.5);
+
+            // console.log(distance, camera, vec);
+            this._vec.unproject(this._camera);
+
+            this._vec.sub(this._camera.position).normalize();
+
+            var distance = - this._camera.position.z / this._vec.z;
+            this._pos.copy(this._camera.position).add(this._vec.multiplyScalar(distance));
+            // console.log("World coordinates: ", this._pos);
+            return this._pos;
+        },
+        stats: function () {
+            if (this._stats) return this._stats;
+
+            this._stats = new Stats();
+            this._stats.dom.style.left = 'unset';
+            this._stats.dom.style.right = '0px';
+            document.body.appendChild(this._stats.dom);
+            return this._stats;
+        },
+        panZoom: function () {
+            return panzoom(this._camera, this._renderer.domElement);
+        },
         clear: function () {
             // TODO: check what needs to be added here
         },
@@ -78,11 +132,13 @@
                 this._containerWidth = this._viewer.container.clientWidth;
                 this._canvasdiv.setAttribute('width', this._containerWidth);
                 this._canvas.setAttribute('width', this._containerWidth);
+                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
             if (this._containerHeight !== this._viewer.container.clientHeight) {
                 this._containerHeight = this._viewer.container.clientHeight;
                 this._canvasdiv.setAttribute('height', this._containerHeight);
                 this._canvas.setAttribute('height', this._containerHeight);
+                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
         },
         resizecanvas: function () {
@@ -90,6 +146,7 @@
             this._canvas.setAttribute('width', this._containerWidth);
             this._canvasdiv.setAttribute('height', this._containerHeight);
             this._canvas.setAttribute('height', this._containerHeight);
+            this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             // paper.view.viewSize = new paper.Size(this._containerWidth, this._containerHeight);
             var viewportZoom = this._viewer.viewport.getZoom(true);
             var image1 = this._viewer.world.getItemAt(0);

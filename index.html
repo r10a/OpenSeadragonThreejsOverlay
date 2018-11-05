@@ -50,7 +50,9 @@
 
                 this.viewer = OpenSeadragon({
                     id: "contentDiv",
-                    // debugMode: true,
+                    debugMode: true,
+                    panVertical: false,
+                    panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
                     tileSources: [{
@@ -63,10 +65,13 @@
 
                 var overlay = this.viewer.threejsOverlay();
                 console.log(overlay);
-                var stats, camera, scene, geometry, material, index = 0, mesh, renderer = new THREE.WebGLRenderer(overlay.context3d());
-                var vec = new THREE.Vector3(); // create once and reuse
-                var pos = new THREE.Vector3(); // create once and reuse
+                var renderer = overlay.renderer();
+                var camera = overlay.camera();
+                var scene = overlay.scene();
+                var stats = overlay.stats();
+                // var panZoom = overlay.panZoom();
 
+                var geometry, material, index = 0, mesh;
                 var toggle = true;
 
                 setup();
@@ -84,6 +89,8 @@
 
                 function onHookOsdViewerScroll(event) {
                     // console.log(event);
+                    camera.zoom = self.viewer.viewport.getZoom()
+                    camera.updateProjectionMatrix();
                 }
 
                 function onHookOsdDownHandler(event) {
@@ -95,20 +102,7 @@
                     if (toggle) {
                         let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
 
-                        console.log(touch.x, touch.y);
-                        vec.set(
-                            (touch.x / window.innerWidth) * 2 - 1,
-                            - (touch.y / window.innerHeight) * 2 + 1,
-                            0.5);
-                        // camera.updateProjectionMatrix();
-                        console.log(distance, camera, vec);
-                        vec.unproject(camera);
-
-                        vec.sub(camera.position).normalize();
-
-                        var distance = - camera.position.z / vec.z;
-                        pos.copy(camera.position).add(vec.multiplyScalar(distance));
-                        console.log(pos);
+                        var pos = overlay.sceneToWorld(touch.x, touch.y);
                         var positions = mesh.geometry.attributes.position.array;
 
                         positions[index++] = pos.x;
@@ -131,36 +125,17 @@
                     let width = self.viewer.container.clientWidth;
                     let height = self.viewer.container.clientHeight;
                     console.log(width, height);
-                    camera = new THREE.PerspectiveCamera(75, width / height, 1, 10000);
-                    camera.position.z = 100;
-                    // scene
-                    scene = new THREE.Scene();
 
                     geometry = new THREE.BufferGeometry();
 
                     var positions = new Float32Array(MAX_POINTS * 3); // 3 vertices per point
                     geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-                    // drawcalls
-                    // drawCount = 2; // draw the first 2 points, only
-                    // geometry.setDrawRange(0, drawCount);
-
                     // material
                     material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
-
-                    camera.aspect = width / height;
-                    renderer.setSize(width, height);
-                    camera.updateProjectionMatrix();
-                    stats = new Stats();
-                    stats.dom.style.left = 'unset';
-                    stats.dom.style.right = '0px';
-                    document.body.appendChild(stats.dom);
-
-                    var panZoom = window.panzoom(camera, renderer.domElement);
-
                 }
 
                 function animate() {
