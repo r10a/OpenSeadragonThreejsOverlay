@@ -80,14 +80,14 @@
         renderer: function () {
             if (this._renderer) return this._renderer;
             this._renderer = new THREE.WebGLRenderer(this.context3d());
+            // console.log(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             return this._renderer;
         },
         camera: function () {
             if (this._camera) return this._camera;
-            this._camera = new THREE.PerspectiveCamera(75, this._viewer.viewport.getAspectRatio(), 1, 10000);
-            this._camera.position.z = 1000;
-            this._camera.zoom = this._viewer.viewport.getZoom();
+            this._camera = new THREE.PerspectiveCamera(45, this._viewer.viewport.getAspectRatio(), 1, 10000);
+            this._camera.position.z = 1;
             this._camera.updateProjectionMatrix();
             return this._camera;
         },
@@ -96,9 +96,12 @@
         },
         sceneToWorld: function (x, y) {
             // console.log("Scene coordinates: ", x, y)
+
+            let width = 553, height = 726;
+
             this._vec.set(
-                (x / window.innerWidth) * 2 - 1,
-                - (y / window.innerHeight) * 2 + 1,
+                (x / width) * 2 - 1,
+                - (y / height) * 2 + 1,
                 0.5);
 
             // console.log(distance, camera, vec);

@@ -51,8 +51,8 @@
                 this.viewer = OpenSeadragon({
                     id: "contentDiv",
                     debugMode: true,
-                    panVertical: false,
-                    panHorizontal: false,
+                    // panVertical: false,
+                    // panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
                     tileSources: [{
@@ -60,7 +60,21 @@
                         width: 2,
                         y: 0,
                         x: 0
-                    }]
+                    }],
+                    overlays: [{
+                        id: 'osd-overlaycanvas',
+                        px: 0,
+                        py: 0,
+                        width: 7026,
+                        height: 9221,
+                        className: 'filter'
+                    }],
+                    showReferenceStrip: false,
+                    referenceStripSizeRatio: 0.2,
+                    showNavigator: true,
+                    sequenceMode: false,
+                    maxZoomPixelRatio: 10,
+                    preserveViewport: true
                 });
 
                 var overlay = this.viewer.threejsOverlay();
@@ -88,8 +102,33 @@
                 });
 
                 function onHookOsdViewerScroll(event) {
-                    // console.log(event);
-                    camera.zoom = self.viewer.viewport.getZoom()
+                    console.log(event);
+                    // console.log(self.viewer.viewport.getMinZoom(), self.viewer.viewport.getMaxZoom(), self.viewer.viewport.getZoom(true), self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getZoom(true)));
+                    // console.log("position", camera.position);
+                    // console.log("zoom", self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getZoom(true)));
+                    // console.log("bounds", self.viewer.viewport.getBounds())
+                    let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
+                    let pos = overlay.sceneToWorld(touch.x, touch.y);
+
+                    // console.log(self.viewer.viewport.getContainerSize(), self.viewer.container.clientWidth, self.viewer.container.clientHeight)
+
+                    /* let vmin = self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getMinZoom());
+                    let vmax = self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getMaxZoom());
+
+                    let cmin = 1;
+                    let cmax = 100;
+
+                    let slope = (cmax - cmin) / (vmax - vmin);
+                    let output = cmax - (cmin + slope * (self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getZoom(true)) - vmin));
+                    
+                    console.log(output);
+                    camera.position.z = output; */
+
+
+                    // camera.position.x = pos.x;
+                    // camera.position.y = pos.y;
+                    // console.log(self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getZoom(true)) / 10);
+                    // camera.zoom = self.viewer.viewport.viewportToImageZoom(self.viewer.viewport.getZoom(true)) / 10;
                     camera.updateProjectionMatrix();
                 }
 
@@ -99,11 +138,14 @@
                 }
 
                 function onHookOsdViewerClick(event) {
+                    console.log(event);
                     if (toggle) {
                         let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
 
+                        console.log(event);
                         var pos = overlay.sceneToWorld(touch.x, touch.y);
                         var positions = mesh.geometry.attributes.position.array;
+                        console.log(pos);
 
                         positions[index++] = pos.x;
                         positions[index++] = pos.y;
