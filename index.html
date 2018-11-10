@@ -166,6 +166,7 @@
                         positions[index++] = 0;
 
                         mesh.geometry.setDrawRange(0, index / 3);
+                        mesh.geometry.computeBoundingSphere();
 
                         mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
                     }
@@ -198,20 +199,15 @@
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
 
-                    /* return fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
+                    fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
                         .then(function (data) {
-                            var i, json, reg;
-                            console.log(data.Regions);
-
-                            console.log("X");
                             //   var positions = mesh.geometry.attributes.position.array;
-                            for (var i = 0; i < dataJSON.Regions.length; i++) {
+                            for (var i = 0; i < data.Regions.length; i++) {
                                 var json = data.Regions[i].path[1].segments;
-                                // onHookOsdViewerAnnotation(json);
                                 for (var j = 0; j < json.length; j++) {
-                                    // console.log(json[j][0] / 10);
-                                    positions[index++] = json[j][0] / 10;
-                                    positions[index++] = json[j][1] / 10;
+
+                                    positions[index++] = json[j][0] - (imagingHelper.imgWidth / 2);
+                                    positions[index++] = (imagingHelper.imgHeight / 2) - json[j][1];
                                     positions[index++] = 0;
 
                                     mesh.geometry.setDrawRange(0, index / 3);
@@ -219,23 +215,8 @@
                                     mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
                                 }
                             }
-                        }); */
-
-                    /*  fetch('patched.json', {
-                         method: "POST", // *GET, POST, PUT, DELETE, etc.
-                         mode: "cors", // no-cors, cors, *same-origin
-                         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-                         credentials: "same-origin", // include, *same-origin, omit
-                         headers: {
-                             "Content-Type": "application/json; charset=utf-8",
-                             // "Content-Type": "application/x-www-form-urlencoded",
-                         },
-                         redirect: "follow", // manual, *follow, error
-                         referrer: "no-referrer", // no-referrer, *client
-                         body: JSON.stringify(data), // body data type must match "Content-Type" header
-                     }).then(response => {
-                         console.log(response.json());
-                     }) */
+                            mesh.geometry.computeBoundingSphere();
+                        });
 
                 }
 
