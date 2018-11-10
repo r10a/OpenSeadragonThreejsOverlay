@@ -203,17 +203,30 @@
                         .then(function (data) {
                             //   var positions = mesh.geometry.attributes.position.array;
                             for (var i = 0; i < data.Regions.length; i++) {
+                                let geometrySub = new THREE.Geometry();
+
                                 var json = data.Regions[i].path[1].segments;
                                 for (var j = 0; j < json.length; j++) {
 
-                                    positions[index++] = json[j][0] - (imagingHelper.imgWidth / 2);
-                                    positions[index++] = (imagingHelper.imgHeight / 2) - json[j][1];
-                                    positions[index++] = 0;
+                                    geometrySub.vertices.push(new THREE.Vector3(
+                                        json[j][0] - (imagingHelper.imgWidth / 2),
+                                        (imagingHelper.imgHeight / 2) - json[j][1],
+                                        0
+                                    ));
 
-                                    mesh.geometry.setDrawRange(0, index / 3);
-
-                                    mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
+                                    /*  positions[index++] = json[j][0] - (imagingHelper.imgWidth / 2);
+                                     positions[index++] = (imagingHelper.imgHeight / 2) - json[j][1];
+                                     positions[index++] = 0;
+ 
+                                     mesh.geometry.setDrawRange(0, index / 3);
+ 
+                                     mesh.geometry.attributes.position.needsUpdate = true;  */// required after the first render
                                 }
+                                let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                                let meshSub = new THREE.Line(geometrySub, materialSub);
+                                meshSub.geometry.computeBoundingSphere();
+                                scene.add(meshSub);
+
                             }
                             mesh.geometry.computeBoundingSphere();
                         });
