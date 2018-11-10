@@ -77,6 +77,8 @@
                     // preserveViewport: true
                 });
 
+                this.viewer.viewport.fitVertically(true);
+
                 var overlay = this.viewer.threejsOverlay();
                 console.log(overlay);
                 var renderer = overlay.renderer();
@@ -98,7 +100,16 @@
                     let hFar = 2 * Math.tan(camera.fov * Math.PI / 180 / 2) * camera.far; // CHANGED - deg to radians
                     let wFar = hFar * camera.aspect; // width
 
-                    camera.position.z = event.viewportWidth / Math.tan(camera.fov * Math.PI / 180 / 2) * 1000;
+                    camera.position.x = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
+                    // camera.position.x = event.viewportCenter.x / Math.abs(event.viewportCenter.x) * event.eventSource.imgWidth * (0.5 - Math.abs(event.viewportCenter.x));
+
+                    camera.position.y = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
+
+                    // camera.position.y = event.viewportCenter.y / Math.abs(event.viewportCenter.y) * event.eventSource.imgHeight * (0.5 - Math.abs(event.viewportCenter.y));
+
+                    camera.position.z = (event.viewportHeight / 2) / Math.tan((camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
+
+                    // camera.zoom = event.zoomFactor;
 
                     // camera.position.x = event.viewportCenter.x * wFar / 2;
                     // camera.position.y = event.viewportCenter.y * wFar / 2;

@@ -90,7 +90,7 @@
         },
         camera: function () {
             if (this._camera) return this._camera;
-            this._camera = new THREE.PerspectiveCamera(45, this._viewer.viewport.getAspectRatio(), 1, 10000);
+            this._camera = new THREE.PerspectiveCamera(120, this._viewer.viewport.getAspectRatio(), 1, 30000);
             this._camera.position.x = 0;
             this._camera.position.y = 0;
             this._camera.position.z = 1000;
