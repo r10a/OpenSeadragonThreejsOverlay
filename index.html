@@ -34,7 +34,7 @@
             init: function () {
                 var self = this;
 
-                /* var tileSource = {
+                var tileSource = {
                     Image: {
                         xmlns: "http://schemas.microsoft.com/deepzoom/2008",
                         Url: "http://openseadragon.github.io/example-images/highsmith/highsmith_files/",
@@ -46,7 +46,7 @@
                             Width: "7026"
                         }
                     }
-                }; */
+                };
 
                 this.viewer = OpenSeadragon({
                     id: "contentDiv",
@@ -55,7 +55,7 @@
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
-                    tileSources: {
+                    tileSources: tileSource/*  {
                         Image: {
                             xmlns: "http://schemas.microsoft.com/deepzoom/2008",
                             Url: "/dzi/ccRCC_Slide_files/",
@@ -67,7 +67,7 @@
                                 Width: "32001"
                             }
                         }
-                    },
+                    } */,
                     showReferenceStrip: false,
                     referenceStripSizeRatio: 0.2,
                     showNavigator: true,
@@ -106,16 +106,25 @@
                     console.log(event.position.x, event.position.y);
                     let pos = overlay.sceneToWorld(touch.x, touch.y);
 
-                    camera.fov -= event.scroll * 2;
+                    // camera.fov -= event.scroll * 2;
 
                     camera.position.x += event.scroll * Math.round(pos.x / 100);
                     camera.position.y += event.scroll * Math.round(pos.y / 100);
 
+
+
+                    console.log(self.viewer.viewport.viewportToImageRectangle(self.viewer.viewport.getBounds(true)));
+
+                    let rect = self.viewer.viewport.viewportToImageRectangle(self.viewer.viewport.getBounds(true));
+
+                    camera.position.z = Math.round(rect.width / Math.tan(75));
+
+                    console.log(camera.position.z);
+
                     camera.updateProjectionMatrix();
 
-                    console.log(self.viewer.viewport.getBounds());
 
-                    console.log(camera.position);
+                    // console.log(camera.position);
                 }
 
                 function onHookOsdDownHandler(event) {

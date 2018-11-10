@@ -34,6 +34,9 @@
         this._containerWidth = 0;
         this._containerHeight = 0;
 
+        this.width = 13306;
+        this.height = 10245;
+
         this._canvasdiv = document.createElement('div');
         this._canvasdiv.setAttribute('id', 'osd-overlaycontainer');
         this._canvasdiv.style.position = 'absolute';
@@ -81,6 +84,7 @@
             if (this._renderer) return this._renderer;
             this._renderer = new THREE.WebGLRenderer(this.context3d());
             this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+            // this._renderer.setSize(this.width, this.height);
             return this._renderer;
         },
         camera: function () {
@@ -102,6 +106,10 @@
                 (x / window.innerWidth) * 2 - 1,
                 - (y / window.innerHeight) * 2 + 1,
                 0.5);
+            // this._vec.set(
+            //     (x / this.width) * 2 - 1,
+            //     - (y / this.height) * 2 + 1,
+            //     0.5);
 
             // console.log(distance, camera, vec);
             this._vec.unproject(this._camera);
@@ -134,13 +142,13 @@
                 this._containerWidth = this._viewer.container.clientWidth;
                 this._canvasdiv.setAttribute('width', this._containerWidth);
                 this._canvas.setAttribute('width', this._containerWidth);
-                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+                // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
             if (this._containerHeight !== this._viewer.container.clientHeight) {
                 this._containerHeight = this._viewer.container.clientHeight;
                 this._canvasdiv.setAttribute('height', this._containerHeight);
                 this._canvas.setAttribute('height', this._containerHeight);
-                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+                // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
         },
         resizecanvas: function () {
@@ -148,7 +156,7 @@
             this._canvas.setAttribute('width', this._containerWidth);
             this._canvasdiv.setAttribute('height', this._containerHeight);
             this._canvas.setAttribute('height', this._containerHeight);
-            this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+            // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             // paper.view.viewSize = new paper.Size(this._containerWidth, this._containerHeight);
             var viewportZoom = this._viewer.viewport.getZoom(true);
             var image1 = this._viewer.world.getItemAt(0);
