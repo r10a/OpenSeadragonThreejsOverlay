@@ -52,7 +52,7 @@
 
                 this.viewer = OpenSeadragon({
                     id: "contentDiv",
-                    debugMode: true,
+                    debugMode: false,
                     panVertical: false,
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
@@ -255,24 +255,46 @@
                             mesh.geometry.computeBoundingSphere();
                         }); */
 
+                    /*  fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
+                         .then(function (data) {
+                             //   var positions = mesh.geometry.attributes.position.array;
+                             for (var i = 0; i < data.Regions.length; i++) {
+                                 // let geometrySub = new THREE.Geometry();
+                                 let shape = new THREE.Shape();
+ 
+                                 var json = data.Regions[i].path[1].segments;
+                                 shape.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                                 for (var j = 0; j < json.length; j++) {
+                                     shape.lineTo(json[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[j][1]);
+                                 }
+                                 shape.lineTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                                 let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                                 let meshSub = new THREE.LineLoop(new THREE.ShapeGeometry(shape), materialSub);
+                                 meshSub.geometry.computeBoundingSphere();
+                                 scene.add(meshSub);
+ 
+                             }
+                             mesh.geometry.computeBoundingSphere();
+                         }); */
+
                     fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
                         .then(function (data) {
                             //   var positions = mesh.geometry.attributes.position.array;
                             for (var i = 0; i < data.Regions.length; i++) {
                                 // let geometrySub = new THREE.Geometry();
-                                let shape = new THREE.Shape();
+                                let path = new THREE.Path();
 
                                 var json = data.Regions[i].path[1].segments;
-                                shape.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                                path.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
                                 for (var j = 0; j < json.length; j++) {
-                                    shape.lineTo(json[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[j][1]);
+                                    path.lineTo(json[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[j][1]);
                                 }
-                                shape.lineTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                                path.lineTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                                let points = path.getPoints();
                                 let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-                                let meshSub = new THREE.LineLoop(new THREE.ShapeGeometry(shape), materialSub);
+                                let meshSub = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), materialSub);
                                 meshSub.geometry.computeBoundingSphere();
                                 scene.add(meshSub);
-
                             }
                             mesh.geometry.computeBoundingSphere();
                         });
