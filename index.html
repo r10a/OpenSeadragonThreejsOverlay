@@ -73,7 +73,7 @@
                     referenceStripSizeRatio: 0.2,
                     showNavigator: true
                     // sequenceMode: false,
-                    // maxZoomPixelRatio: 10,
+                    // maxZoomPixelRatio: 10
                     // preserveViewport: true
                 });
 
@@ -95,16 +95,28 @@
 
                 function onImageViewChanged(event) {
                     console.log(event);
-                    camera.position.z = - event.viewportWidth / Math.tan(75) * 1000;
+                    let hFar = 2 * Math.tan(camera.fov * Math.PI / 180 / 2) * camera.far; // CHANGED - deg to radians
+                    let wFar = hFar * camera.aspect; // width
+
+                    camera.position.z = event.viewportWidth / Math.tan(camera.fov * Math.PI / 180 / 2) * 1000;
+
+                    // camera.position.x = event.viewportCenter.x * wFar / 2;
+                    // camera.position.y = event.viewportCenter.y * wFar / 2;
+                    // camera.setViewOffset()
+
                     camera.updateProjectionMatrix();
-                    // console.log(camera.position);
+                    console.log(camera.position);
+                    // Far Plane dimensions
+
+                    // console.log(wFar, hFar);
+
                 }
 
                 // var viewerInputHook = viewer.addViewerInputHook({ hooks: [...] });
                 var viewerInputHook = this.viewer.addViewerInputHook({
                     hooks: [
                         // { tracker: 'viewer', handler: 'moveHandler', hookHandler: onHookOsdViewerMove },
-                        { tracker: 'viewer', handler: 'scrollHandler', hookHandler: onHookOsdViewerScroll },
+                        // { tracker: 'viewer', handler: 'scrollHandler', hookHandler: onHookOsdViewerScroll },
                         { tracker: 'viewer', handler: 'keyDownHandler', hookHandler: onHookOsdDownHandler },
                         { tracker: 'viewer', handler: 'clickHandler', hookHandler: onHookOsdViewerClick }
                     ]
@@ -135,6 +147,7 @@
                         let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
 
                         var pos = overlay.sceneToWorld(touch.x, touch.y);
+                        console.log(pos);
                         var positions = mesh.geometry.attributes.position.array;
 
                         positions[index++] = pos.x;
