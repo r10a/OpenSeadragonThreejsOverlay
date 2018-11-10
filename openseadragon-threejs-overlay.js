@@ -54,6 +54,7 @@
         this._camera = undefined;
         this._scene = undefined;
         this._stats = undefined;
+        // this.imagingHelper = this._viewer.activateImagingHelper();
         this.resize();
 
         // paper.setup(this._canvas);
@@ -93,8 +94,10 @@
             this._camera.position.x = 0;
             this._camera.position.y = 0;
             this._camera.position.z = 1000;
-            this._camera.zoom = this._viewer.viewport.getZoom();
+            // console.log("default zoom", this.imagingHelper.getZoomFactor());
+            // this._camera.zoom = this.imagingHelper.getZoomFactor();
             this._camera.updateProjectionMatrix();
+            console.log("three zoom", this._camera.zoom);
             return this._camera;
         },
         scene: function () {
@@ -102,6 +105,8 @@
         },
         sceneToWorld: function (x, y) {
             // console.log("Scene coordinates: ", x, y)
+            x = Math.round(x);
+            y = Math.round(y);
             this._vec.set(
                 (x / window.innerWidth) * 2 - 1,
                 - (y / window.innerHeight) * 2 + 1,

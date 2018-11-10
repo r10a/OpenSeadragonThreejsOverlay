@@ -6,6 +6,7 @@
     <script src="openseadragon/openseadragon.js"></script>
     <script src="openseadragon-threejs-overlay.js"></script>
     <script src="js/openseadragon-viewerinputhook.js"></script>
+    <script src="js/openseadragon-imaginghelper.js"></script>
     <script src="js/three.js"></script>
     <script src="js/wheel.js"></script>
     <script src="js/eventify.js"></script>
@@ -70,10 +71,10 @@
                     } */,
                     showReferenceStrip: false,
                     referenceStripSizeRatio: 0.2,
-                    showNavigator: true,
-                    sequenceMode: false,
-                    maxZoomPixelRatio: 10,
-                    preserveViewport: true
+                    showNavigator: true
+                    // sequenceMode: false,
+                    // maxZoomPixelRatio: 10,
+                    // preserveViewport: true
                 });
 
                 var overlay = this.viewer.threejsOverlay();
@@ -90,6 +91,15 @@
                 setup();
                 animate();
 
+                var imagingHelper = this.viewer.activateImagingHelper({ onImageViewChanged: onImageViewChanged });
+
+                function onImageViewChanged(event) {
+                    console.log(event);
+                    camera.position.z = - event.viewportWidth / Math.tan(75) * 1000;
+                    camera.updateProjectionMatrix();
+                    // console.log(camera.position);
+                }
+
                 // var viewerInputHook = viewer.addViewerInputHook({ hooks: [...] });
                 var viewerInputHook = this.viewer.addViewerInputHook({
                     hooks: [
@@ -101,30 +111,17 @@
                 });
 
                 function onHookOsdViewerScroll(event) {
-                    console.log(event);
+                    // console.log(event);
                     let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
-                    console.log(event.position.x, event.position.y);
+                    // console.log(event.position.x, event.position.y);
                     let pos = overlay.sceneToWorld(touch.x, touch.y);
-
-                    // camera.fov -= event.scroll * 2;
 
                     camera.position.x += event.scroll * Math.round(pos.x / 100);
                     camera.position.y += event.scroll * Math.round(pos.y / 100);
 
-
-
-                    console.log(self.viewer.viewport.viewportToImageRectangle(self.viewer.viewport.getBounds(true)));
-
-                    let rect = self.viewer.viewport.viewportToImageRectangle(self.viewer.viewport.getBounds(true));
-
-                    camera.position.z = Math.round(rect.width / Math.tan(75));
-
-                    console.log(camera.position.z);
-
                     camera.updateProjectionMatrix();
 
-
-                    // console.log(camera.position);
+                    console.log(imagingHelper.getZoomFactor());
                 }
 
                 function onHookOsdDownHandler(event) {
@@ -133,6 +130,7 @@
                 }
 
                 function onHookOsdViewerClick(event) {
+                    console.log(event.position);
                     if (toggle) {
                         let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
 
