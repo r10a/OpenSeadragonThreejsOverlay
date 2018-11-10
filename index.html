@@ -56,7 +56,7 @@
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
-                    tileSources: tileSource /* {
+                    tileSources: /* tileSource */ {
                         Image: {
                             xmlns: "http://schemas.microsoft.com/deepzoom/2008",
                             Url: "/dzi/ccRCC_Slide_files/",
@@ -68,7 +68,7 @@
                                 Width: "32001"
                             }
                         }
-                    } */,
+                    },
                     showReferenceStrip: false,
                     referenceStripSizeRatio: 0.2,
                     showNavigator: true
@@ -205,31 +205,53 @@
                             for (var i = 0; i < data.Regions.length; i++) {
                                 let geometrySub = new THREE.Geometry();
 
-                                var json = data.Regions[i].path[1].segments;
-                                for (var j = 0; j < json.length; j++) {
+                                var json = data.Regions[i].path[1];
+                                for (var j = 0; j < json.segments.length; j++) {
 
                                     geometrySub.vertices.push(new THREE.Vector3(
-                                        json[j][0] - (imagingHelper.imgWidth / 2),
-                                        (imagingHelper.imgHeight / 2) - json[j][1],
+                                        json.segments[j][0] - (imagingHelper.imgWidth / 2),
+                                        (imagingHelper.imgHeight / 2) - json.segments[j][1],
                                         0
                                     ));
-
-                                    /*  positions[index++] = json[j][0] - (imagingHelper.imgWidth / 2);
-                                     positions[index++] = (imagingHelper.imgHeight / 2) - json[j][1];
-                                     positions[index++] = 0;
- 
-                                     mesh.geometry.setDrawRange(0, index / 3);
- 
-                                     mesh.geometry.attributes.position.needsUpdate = true;  */// required after the first render
                                 }
-                                let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-                                let meshSub = new THREE.Line(geometrySub, materialSub);
+                                let color = "rgb(" + json.fillColor.map(x => Math.round(x * 100) + "%").join(" ,") + ")";
+                                let materialSub = new THREE.LineBasicMaterial({ color: new THREE.Color(color), linewidth: 50 });
+                                let meshSub = new THREE.LineLoop(geometrySub, materialSub);
                                 meshSub.geometry.computeBoundingSphere();
                                 scene.add(meshSub);
 
                             }
+                            console.log(THREE.VertexColors);
                             mesh.geometry.computeBoundingSphere();
                         });
+
+                    /* fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
+                    .then(function (data) {
+                        //   var positions = mesh.geometry.attributes.position.array;
+                        for (var i = 0; i < data.Regions.length; i++) {
+                            // let geometrySub = new THREE.Geometry();
+                            let shape = new THREE.Shape();
+
+                            var json = data.Regions[i].path[1].segments;
+                            shape.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
+                            for (var j = 0; j < json.length; j++) {
+
+                                geometrySub.vertices.push(new THREE.Vector3(
+                                    json[j][0] - (imagingHelper.imgWidth / 2),
+                                    (imagingHelper.imgHeight / 2) - json[j][1],
+                                    0
+                                ));
+
+                            }
+                            let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                            let meshSub = new THREE.LineLoop(geometrySub, materialSub);
+                            meshSub.geometry.computeBoundingSphere();
+                            scene.add(meshSub);
+
+                        }
+                        mesh.geometry.computeBoundingSphere();
+                    }); */
+
 
                 }
 
