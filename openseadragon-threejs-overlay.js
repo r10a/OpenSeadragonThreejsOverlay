@@ -86,6 +86,8 @@
         camera: function () {
             if (this._camera) return this._camera;
             this._camera = new THREE.PerspectiveCamera(75, this._viewer.viewport.getAspectRatio(), 1, 10000);
+            this._camera.position.x = 0;
+            this._camera.position.y = 0;
             this._camera.position.z = 1000;
             this._camera.zoom = this._viewer.viewport.getZoom();
             this._camera.updateProjectionMatrix();

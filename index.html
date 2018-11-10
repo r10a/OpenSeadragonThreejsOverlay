@@ -34,7 +34,7 @@
             init: function () {
                 var self = this;
 
-                var tileSource = {
+                /* var tileSource = {
                     Image: {
                         xmlns: "http://schemas.microsoft.com/deepzoom/2008",
                         Url: "http://openseadragon.github.io/example-images/highsmith/highsmith_files/",
@@ -46,7 +46,7 @@
                             Width: "7026"
                         }
                     }
-                };
+                }; */
 
                 this.viewer = OpenSeadragon({
                     id: "contentDiv",
@@ -55,12 +55,25 @@
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
-                    tileSources: [{
-                        tileSource: tileSource,
-                        width: 2,
-                        y: 0,
-                        x: 0
-                    }]
+                    tileSources: {
+                        Image: {
+                            xmlns: "http://schemas.microsoft.com/deepzoom/2008",
+                            Url: "/dzi/ccRCC_Slide_files/",
+                            Format: "jpeg",
+                            Overlap: "1",
+                            TileSize: "254",
+                            Size: {
+                                Height: "14305",
+                                Width: "32001"
+                            }
+                        }
+                    },
+                    showReferenceStrip: false,
+                    referenceStripSizeRatio: 0.2,
+                    showNavigator: true,
+                    sequenceMode: false,
+                    maxZoomPixelRatio: 10,
+                    preserveViewport: true
                 });
 
                 var overlay = this.viewer.threejsOverlay();
@@ -88,9 +101,21 @@
                 });
 
                 function onHookOsdViewerScroll(event) {
-                    // console.log(event);
-                    camera.zoom = self.viewer.viewport.getZoom()
+                    console.log(event);
+                    let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
+                    console.log(event.position.x, event.position.y);
+                    let pos = overlay.sceneToWorld(touch.x, touch.y);
+
+                    camera.fov -= event.scroll * 2;
+
+                    camera.position.x += event.scroll * Math.round(pos.x / 100);
+                    camera.position.y += event.scroll * Math.round(pos.y / 100);
+
                     camera.updateProjectionMatrix();
+
+                    console.log(self.viewer.viewport.getBounds());
+
+                    console.log(camera.position);
                 }
 
                 function onHookOsdDownHandler(event) {
@@ -126,6 +151,11 @@
                     let height = self.viewer.container.clientHeight;
                     console.log(width, height);
 
+                    /*  var geometryPlane = new THREE.PlaneGeometry(5, 20, 32);
+                     var materialPlane = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+                     var plane = new THREE.Mesh(geometryPlane, materialPlane);
+                     scene.add(plane); */
+
                     geometry = new THREE.BufferGeometry();
 
                     var positions = new Float32Array(MAX_POINTS * 3); // 3 vertices per point
@@ -136,6 +166,23 @@
 
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
+
+                    /*  fetch('patched.json', {
+                         method: "POST", // *GET, POST, PUT, DELETE, etc.
+                         mode: "cors", // no-cors, cors, *same-origin
+                         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                         credentials: "same-origin", // include, *same-origin, omit
+                         headers: {
+                             "Content-Type": "application/json; charset=utf-8",
+                             // "Content-Type": "application/x-www-form-urlencoded",
+                         },
+                         redirect: "follow", // manual, *follow, error
+                         referrer: "no-referrer", // no-referrer, *client
+                         body: JSON.stringify(data), // body data type must match "Content-Type" header
+                     }).then(response => {
+                         console.log(response.json());
+                     }) */
+
                 }
 
                 function animate() {
