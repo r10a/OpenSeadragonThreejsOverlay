@@ -7,6 +7,7 @@
     <script src="openseadragon-threejs-overlay.js"></script>
     <script src="js/openseadragon-viewerinputhook.js"></script>
     <script src="js/openseadragon-imaginghelper.js"></script>
+    <script src="js/openseadragon-scalebar.js"></script>
     <script src="js/three.js"></script>
     <script src="js/wheel.js"></script>
     <script src="js/eventify.js"></script>
@@ -192,6 +193,8 @@
 
                     var positions = new Float32Array(MAX_POINTS * 3); // 3 vertices per point
                     geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+                    self.viewer.scalebar({ pixelsPerMeter: 20000000 });
 
                     // material
                     material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
