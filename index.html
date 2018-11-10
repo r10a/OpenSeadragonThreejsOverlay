@@ -56,7 +56,7 @@
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
-                    tileSources: tileSource/*  {
+                    tileSources: tileSource /* {
                         Image: {
                             xmlns: "http://schemas.microsoft.com/deepzoom/2008",
                             Url: "/dzi/ccRCC_Slide_files/",
@@ -197,6 +197,29 @@
 
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
+
+                    /* return fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
+                        .then(function (data) {
+                            var i, json, reg;
+                            console.log(data.Regions);
+
+                            console.log("X");
+                            //   var positions = mesh.geometry.attributes.position.array;
+                            for (var i = 0; i < dataJSON.Regions.length; i++) {
+                                var json = data.Regions[i].path[1].segments;
+                                // onHookOsdViewerAnnotation(json);
+                                for (var j = 0; j < json.length; j++) {
+                                    // console.log(json[j][0] / 10);
+                                    positions[index++] = json[j][0] / 10;
+                                    positions[index++] = json[j][1] / 10;
+                                    positions[index++] = 0;
+
+                                    mesh.geometry.setDrawRange(0, index / 3);
+
+                                    mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
+                                }
+                            }
+                        }); */
 
                     /*  fetch('patched.json', {
                          method: "POST", // *GET, POST, PUT, DELETE, etc.
