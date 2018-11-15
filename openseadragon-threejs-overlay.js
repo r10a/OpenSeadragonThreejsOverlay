@@ -85,17 +85,14 @@
             if (this._renderer) return this._renderer;
             this._renderer = new THREE.WebGLRenderer(this.context3d());
             this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
-            // this._renderer.setSize(this.width, this.height);
             return this._renderer;
         },
         camera: function () {
             if (this._camera) return this._camera;
-            this._camera = new THREE.PerspectiveCamera(120, this._viewer.viewport.getAspectRatio(), 1, 30000);
+            this._camera = new THREE.PerspectiveCamera(45, this._viewer.viewport.getAspectRatio(), 1, 30000);
             this._camera.position.x = 0;
             this._camera.position.y = 0;
             this._camera.position.z = 1000;
-            // console.log("default zoom", this.imagingHelper.getZoomFactor());
-            // this._camera.zoom = this.imagingHelper.getZoomFactor();
             this._camera.updateProjectionMatrix();
             console.log("three zoom", this._camera.zoom);
             return this._camera;
@@ -111,19 +108,13 @@
                 (x / window.innerWidth) * 2 - 1,
                 - (y / window.innerHeight) * 2 + 1,
                 0.5);
-            // this._vec.set(
-            //     (x / this.width) * 2 - 1,
-            //     - (y / this.height) * 2 + 1,
-            //     0.5);
 
-            // console.log(distance, camera, vec);
             this._vec.unproject(this._camera);
 
             this._vec.sub(this._camera.position).normalize();
 
             var distance = - this._camera.position.z / this._vec.z;
             this._pos.copy(this._camera.position).add(this._vec.multiplyScalar(distance));
-            // console.log("World coordinates: ", this._pos);
             return this._pos;
         },
         stats: function () {
@@ -142,7 +133,7 @@
             // TODO: check what needs to be added here
         },
         // ----------
-        resize: function () {
+        resize: function () { // TODO
             if (this._containerWidth !== this._viewer.container.clientWidth) {
                 this._containerWidth = this._viewer.container.clientWidth;
                 this._canvasdiv.setAttribute('width', this._containerWidth);
@@ -156,7 +147,7 @@
                 // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
         },
-        resizecanvas: function () {
+        resizecanvas: function () {// TODO
             this._canvasdiv.setAttribute('width', this._containerWidth);
             this._canvas.setAttribute('width', this._containerWidth);
             this._canvasdiv.setAttribute('height', this._containerHeight);
