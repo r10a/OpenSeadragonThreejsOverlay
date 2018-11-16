@@ -101,7 +101,6 @@
             return this._scene ? this._scene : new THREE.Scene();
         },
         sceneToWorld: function (x, y) {
-            // console.log("Scene coordinates: ", x, y)
             x = Math.round(x);
             y = Math.round(y);
             this._vec.set(

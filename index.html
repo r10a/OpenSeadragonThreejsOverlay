@@ -55,19 +55,7 @@
                     panHorizontal: false,
                     gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false },
                     prefixUrl: "openseadragon/images/",
-                    tileSources: /* tileSource */ {
-                        Image: {
-                            xmlns: "http://schemas.microsoft.com/deepzoom/2008",
-                            Url: "/dzi/ccRCC_Slide_files/",
-                            Format: "jpeg",
-                            Overlap: "1",
-                            TileSize: "254",
-                            Size: {
-                                Height: "14305",
-                                Width: "32001"
-                            }
-                        }
-                    },
+                    tileSources: tileSource,
                     showReferenceStrip: false,
                     referenceStripSizeRatio: 0.2,
                     showNavigator: true,
@@ -102,7 +90,6 @@
 
                 }
 
-                // var viewerInputHook = viewer.addViewerInputHook({ hooks: [...] });
                 var viewerInputHook = this.viewer.addViewerInputHook({
                     hooks: [
                         // { tracker: 'viewer', handler: 'moveHandler', hookHandler: onHookOsdViewerMove },
@@ -146,6 +133,7 @@
                         mesh.geometry.computeBoundingSphere();
 
                         mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
+                        console.log(positions);
                     }
                 }
 
@@ -173,109 +161,12 @@
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
 
-                    // Filled color
-                    /* fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
-                        .then(function (data) {
-                            //   var positions = mesh.geometry.attributes.position.array;
-                            for (var i = 0; i < data.Regions.length; i++) {
-                                // let geometrySub = new THREE.Geometry();
-                                let shape = new THREE.Shape();
+                    var points = [new THREE.Vector2(-2765.1767578125, 1656.832763671875), new THREE.Vector2(2562.02099609375, 1656.832763671875), new THREE.Vector2(3284.352783203125, 1284.38037109375), new THREE.Vector2(3239.20703125, -103.85124969482422), new THREE.Vector2(-3374.644287109375, -115.13768768310547), new THREE.Vector2(-3431.076416015625, 1295.666748046875), new THREE.Vector2(-2765.1767578125, 1656.832763671875), new THREE.Vector2(3239.20703125, -103.85124969482422), new THREE.Vector2(2539.447998046875, 1645.5462646484375), new THREE.Vector2(-3374.644287109375, -115.13768768310547), new THREE.Vector2(-2765.1767578125, 1645.5462646484375)];
 
-                                var json = data.Regions[i].path[1];
-                                shape.moveTo(json.segments[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json.segments[0][1]);
-                                for (var j = 0; j < json.segments.length; j++) {
-
-                                    shape.lineTo(json.segments[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json.segments[j][1]);
-
-                                }
-                                shape.lineTo(json.segments[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json.segments[0][1]);
-                                let color = "rgb(" + json.fillColor.map(x => Math.round(x * 100) + "%").join(" ,") + ")";
-                                let materialSub = new THREE.MeshBasicMaterial({ color: new THREE.Color(color), transparent: true, opacity: 0.5 });
-                                let meshSub = new THREE.Mesh(new THREE.ShapeGeometry(shape), materialSub);
-                                meshSub.geometry.computeBoundingSphere();
-                                scene.add(meshSub);
-
-                            }
-                            mesh.geometry.computeBoundingSphere();
-                        });
-
-                     */
-
-                    //Border colored
-                    /* fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
-                        .then(function (data) {
-                            //   var positions = mesh.geometry.attributes.position.array;
-                            let lod = new THREE.LOD();
-
-                            for (var i = 0; i < data.Regions.length; i++) {
-                                let geometrySub = new THREE.Geometry();
-
-                                var json = data.Regions[i].path[1];
-                                for (var j = 0; j < json.segments.length; j++) {
-
-                                    geometrySub.vertices.push(new THREE.Vector3(
-                                        json.segments[j][0] - (imagingHelper.imgWidth / 2),
-                                        (imagingHelper.imgHeight / 2) - json.segments[j][1],
-                                        0
-                                    ));
-                                }
-                                let color = "rgb(" + json.fillColor.map(x => Math.round(x * 100) + "%").join(" ,") + ")";
-                                let materialSub = new THREE.MeshBasicMaterial({ color: new THREE.Color(color), linewidth: 50 });
-                                let meshSub = new THREE.LineLoop(geometrySub, materialSub);
-                                meshSub.geometry.computeBoundingSphere();
-                                scene.add(meshSub);
-
-                            }
-                            console.log(THREE.VertexColors);
-                            mesh.geometry.computeBoundingSphere();
-                        }); */
-
-                    // Black bordered shapegeometry
-                    /* fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
-                        .then(function (data) {
-                            //   var positions = mesh.geometry.attributes.position.array;
-                            for (var i = 0; i < data.Regions.length; i++) {
-                                // let geometrySub = new THREE.Geometry();
-                                let shape = new THREE.Shape();
-
-                                var json = data.Regions[i].path[1].segments;
-                                shape.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
-                                for (var j = 0; j < json.length; j++) {
-                                    shape.lineTo(json[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[j][1]);
-                                }
-                                shape.lineTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
-                                let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-                                let meshSub = new THREE.LineLoop(new THREE.ShapeGeometry(shape), materialSub);
-                                meshSub.geometry.computeBoundingSphere();
-                                scene.add(meshSub);
-
-                            }
-                            mesh.geometry.computeBoundingSphere();
-                        }); */
-
-                    // Black bordered buffergeometry
-                    fetch("ccRCC_Slide_Tumor.json").then((r) => r.json())
-                        .then(function (data) {
-                            //   var positions = mesh.geometry.attributes.position.array;
-                            for (var i = 0; i < data.Regions.length; i++) {
-                                // let geometrySub = new THREE.Geometry();
-                                let path = new THREE.Path();
-
-                                var json = data.Regions[i].path[1].segments;
-                                path.moveTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
-                                for (var j = 0; j < json.length; j++) {
-                                    path.lineTo(json[j][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[j][1]);
-                                }
-                                path.lineTo(json[0][0] - (imagingHelper.imgWidth / 2), (imagingHelper.imgHeight / 2) - json[0][1]);
-                                let points = path.getPoints();
-                                let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-                                let meshSub = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), materialSub);
-                                meshSub.geometry.computeBoundingSphere();
-                                scene.add(meshSub);
-                            }
-                            mesh.geometry.computeBoundingSphere();
-                        });
-
+                    let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                    let meshSub = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), materialSub);
+                    meshSub.geometry.computeBoundingSphere();
+                    scene.add(meshSub);
 
                 }
 
