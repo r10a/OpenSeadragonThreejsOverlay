@@ -6,7 +6,7 @@ Compatible with OpenSeadragon 2.0.0 or greater.
 
 License: The BSD 3-Clause License. The software was forked from [OpenseadragonPaperjsOverlay](https://github.com/eriksjolund/OpenSeadragonPaperjsOverlay), that also is licensed under the BSD 3-Clause License.
 
-##Demo web page
+## Demo web page
 
 See the [online demo](https://fervent-snyder-c66537.netlify.com/)
 where some Three.js lines are shown on top of an OpenSeadragon window. More lines can be drawn by left clicking anywhere in the Image.
