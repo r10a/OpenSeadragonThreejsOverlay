@@ -27,6 +27,7 @@ To add Three.js overlay capability to your OpenSeadragon Viewer, call `threejsOv
 `````
 
 This will initalize and return a threejs environment complete with a WebGLRenderer, scene, and camera.
+
 _Only PerspectiveCamera is supported for now. Will be adding support for the OrthographicCamera shortly._
 
 The new object is returned return with the following methods:
