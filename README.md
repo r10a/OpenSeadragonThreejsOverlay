@@ -18,9 +18,9 @@ To use, include the `oopenseadragon-threejs-overlay.js` file after `openseadrago
 To add Three.js overlay capability to your OpenSeadragon Viewer, call `threejsOverlay()` on it. 
 
 `````javascript
-    var viewer = new OpenSeadragon.Viewer(...);
-    var overlay = viewer.threejsOverlay();
-    
+     var viewer = new OpenSeadragon.Viewer(...);
+     var overlay = viewer.threejsOverlay();
+     
      // Initialize Threejs variables
      var renderer = overlay.renderer();
      var camera = overlay.camera();
