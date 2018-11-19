@@ -4,9 +4,9 @@
 <head>
     <title>OpenSeadragon Canvas Overlay Demo</title>
     <script src="openseadragon/openseadragon.js"></script>
-    <script src="openseadragon-threejs-overlay.js"></script>
     <script src="js/openseadragon-viewerinputhook.js"></script>
     <script src="js/openseadragon-imaginghelper.js"></script>
+    <script src="openseadragon-threejs-overlay.js"></script>
     <script src="js/openseadragon-scalebar.js"></script>
     <script src="js/three.js"></script>
     <script src="js/wheel.js"></script>
@@ -66,76 +66,56 @@
 
                 var overlay = this.viewer.threejsOverlay();
                 console.log(overlay);
+                // Initialize Threejs variables
                 var renderer = overlay.renderer();
                 var camera = overlay.camera();
                 var scene = overlay.scene();
+
+                // Performance Monitor
                 var stats = overlay.stats();
 
+                // openseadragon Imaging helper
+                var imagingHelper = overlay.imagingHelper(); // onImageViewChanged already attached
+
+                // declare variables to draw points on overlay
                 var geometry, material, index = 0, mesh;
                 var toggle = true;
 
                 setup();
+
+                // Threejs animate loop
                 animate();
 
-                var imagingHelper = this.viewer.activateImagingHelper({ onImageViewChanged: onImageViewChanged });
-
-                function onImageViewChanged(event) {
-                    console.log(event);
-                    camera.position.x = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
-                    camera.position.y = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
-                    camera.position.z = (event.viewportHeight / 2) / Math.tan((camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
-
-                    camera.updateProjectionMatrix();
-                    console.log(camera.position);
-
-                }
-
+                // Key events
                 var viewerInputHook = this.viewer.addViewerInputHook({
                     hooks: [
-                        // { tracker: 'viewer', handler: 'moveHandler', hookHandler: onHookOsdViewerMove },
-                        // { tracker: 'viewer', handler: 'scrollHandler', hookHandler: onHookOsdViewerScroll },
-                        { tracker: 'viewer', handler: 'keyDownHandler', hookHandler: onHookOsdDownHandler },
-                        { tracker: 'viewer', handler: 'clickHandler', hookHandler: onHookOsdViewerClick }
+                        {
+                            tracker: 'viewer', handler: 'keyDownHandler', hookHandler: event => { // Disable mouse click drawing
+                                console.log(event);
+                                toggle = !toggle;
+                            }
+                        },
+                        {
+                            tracker: 'viewer', handler: 'clickHandler', hookHandler: event => { // Draw lines on overlay
+                                if (toggle) {
+                                    let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
+
+                                    var pos = overlay.sceneToWorld(touch.x, touch.y);
+                                    var positions = mesh.geometry.attributes.position.array;
+
+                                    positions[index++] = pos.x;
+                                    positions[index++] = pos.y;
+                                    positions[index++] = 0;
+
+                                    mesh.geometry.setDrawRange(0, index / 3);
+                                    mesh.geometry.computeBoundingSphere();
+
+                                    mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
+                                }
+                            }
+                        }
                     ]
                 });
-
-                function onHookOsdViewerScroll(event) {
-                    let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
-                    let pos = overlay.sceneToWorld(touch.x, touch.y);
-
-                    camera.position.x += event.scroll * Math.round(pos.x / 100);
-                    camera.position.y += event.scroll * Math.round(pos.y / 100);
-
-                    camera.updateProjectionMatrix();
-
-                    console.log(imagingHelper.getZoomFactor());
-                }
-
-                function onHookOsdDownHandler(event) {
-                    console.log(event);
-                    toggle = !toggle;
-                }
-
-                function onHookOsdViewerClick(event) {
-                    console.log(event.position);
-                    if (toggle) {
-                        let touch = { x: Math.round(event.position.x), y: Math.round(event.position.y) };
-
-                        var pos = overlay.sceneToWorld(touch.x, touch.y);
-                        console.log(pos);
-                        var positions = mesh.geometry.attributes.position.array;
-
-                        positions[index++] = pos.x;
-                        positions[index++] = pos.y;
-                        positions[index++] = 0;
-
-                        mesh.geometry.setDrawRange(0, index / 3);
-                        mesh.geometry.computeBoundingSphere();
-
-                        mesh.geometry.attributes.position.needsUpdate = true; // required after the first render
-                        console.log(positions);
-                    }
-                }
 
                 $(window).resize(function () {
                     overlay.resize();
@@ -143,11 +123,11 @@
 
                 function setup() {
                     let MAX_POINTS = 500000;
-                    // console.log(self.viewer);
+
                     let width = self.viewer.container.clientWidth;
                     let height = self.viewer.container.clientHeight;
-                    console.log(width, height);
 
+                    // Threejs Geometry
                     geometry = new THREE.BufferGeometry();
 
                     var positions = new Float32Array(MAX_POINTS * 3); // 3 vertices per point
@@ -155,13 +135,25 @@
 
                     self.viewer.scalebar({ pixelsPerMeter: 20000000 });
 
-                    // material
+                    // Threejs Material
                     material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
                     mesh = new THREE.Line(geometry, material);
                     scene.add(mesh);
 
-                    var points = [new THREE.Vector2(-2765.1767578125, 1656.832763671875), new THREE.Vector2(2562.02099609375, 1656.832763671875), new THREE.Vector2(3284.352783203125, 1284.38037109375), new THREE.Vector2(3239.20703125, -103.85124969482422), new THREE.Vector2(-3374.644287109375, -115.13768768310547), new THREE.Vector2(-3431.076416015625, 1295.666748046875), new THREE.Vector2(-2765.1767578125, 1656.832763671875), new THREE.Vector2(3239.20703125, -103.85124969482422), new THREE.Vector2(2539.447998046875, 1645.5462646484375), new THREE.Vector2(-3374.644287109375, -115.13768768310547), new THREE.Vector2(-2765.1767578125, 1645.5462646484375)];
+                    var points = [
+                        new THREE.Vector2(-2765.1767578125, 1656.832763671875),
+                        new THREE.Vector2(2562.02099609375, 1656.832763671875),
+                        new THREE.Vector2(3284.352783203125, 1284.38037109375),
+                        new THREE.Vector2(3239.20703125, -103.85124969482422),
+                        new THREE.Vector2(-3374.644287109375, -115.13768768310547),
+                        new THREE.Vector2(-3431.076416015625, 1295.666748046875),
+                        new THREE.Vector2(-2765.1767578125, 1656.832763671875),
+                        new THREE.Vector2(3239.20703125, -103.85124969482422),
+                        new THREE.Vector2(2539.447998046875, 1645.5462646484375),
+                        new THREE.Vector2(-3374.644287109375, -115.13768768310547),
+                        new THREE.Vector2(-2765.1767578125, 1645.5462646484375)
+                    ];
 
                     let materialSub = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
                     let meshSub = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), materialSub);

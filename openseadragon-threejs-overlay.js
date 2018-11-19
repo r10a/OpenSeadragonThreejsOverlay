@@ -23,84 +23,76 @@
     };
 
     // ----------
-    var Overlay = function (viewer) {
-        var self = this;
+    class Overlay {
 
-        this._viewer = viewer;
+        constructor(viewer) {
+            var self = this;
+            this._viewer = viewer;
+            this._vec = new THREE.Vector3(); // create once and reuse
+            this._pos = new THREE.Vector3(); // create once and reuse
+            this._containerWidth = 0;
+            this._containerHeight = 0;
+            this.width = 13306;
+            this.height = 10245;
+            this._canvasdiv = document.createElement('div');
+            this._canvasdiv.setAttribute('id', 'osd-overlaycontainer');
+            this._canvasdiv.style.position = 'absolute';
+            this._canvasdiv.style.left = 0;
+            this._canvasdiv.style.top = 0;
+            this._canvasdiv.style.width = '100%';
+            this._canvasdiv.style.height = '100%';
+            this._viewer.canvas.appendChild(this._canvasdiv);
+            this._canvas = document.createElement('canvas');
+            this._canvas.setAttribute('id', 'osd-overlaycanvas');
+            this._canvasdiv.appendChild(this._canvas);
+            this._renderer = this.renderer();
+            this._camera = undefined;
+            this._scene = undefined;
+            this._stats = undefined;
+            this._imagingHelper = undefined;
+            this.resize();
+            // paper.setup(this._canvas);
+            this._viewer.addHandler('update-viewport', function () {
+                self.resize();
+                self.resizecanvas();
+            });
+            this._viewer.addHandler('open', function () {
+                self.resize();
+                self.resizecanvas();
+            });
+            this.resize();
+        }
 
-        this._vec = new THREE.Vector3(); // create once and reuse
-        this._pos = new THREE.Vector3(); // create once and reuse
-
-        this._containerWidth = 0;
-        this._containerHeight = 0;
-
-        this.width = 13306;
-        this.height = 10245;
-
-        this._canvasdiv = document.createElement('div');
-        this._canvasdiv.setAttribute('id', 'osd-overlaycontainer');
-        this._canvasdiv.style.position = 'absolute';
-        this._canvasdiv.style.left = 0;
-        this._canvasdiv.style.top = 0;
-        this._canvasdiv.style.width = '100%';
-        this._canvasdiv.style.height = '100%';
-        this._viewer.canvas.appendChild(this._canvasdiv);
-
-        this._canvas = document.createElement('canvas');
-        this._canvas.setAttribute('id', 'osd-overlaycanvas');
-        this._canvasdiv.appendChild(this._canvas);
-
-        this._renderer = this.renderer();
-        this._camera = undefined;
-        this._scene = undefined;
-        this._stats = undefined;
-        // this.imagingHelper = this._viewer.activateImagingHelper();
-        this.resize();
-
-        // paper.setup(this._canvas);
-
-        this._viewer.addHandler('update-viewport', function () {
-            self.resize();
-            self.resizecanvas();
-        });
-
-        this._viewer.addHandler('open', function () {
-            self.resize();
-            self.resizecanvas();
-        });
-
-        this.resize();
-    };
-
-    // ----------
-    Overlay.prototype = {
-        // ----------
-        canvas: function () {
+        canvas() {
             return this._canvas;
-        },
-        context3d: function () {
+        }
+
+        context3d() {
             return this._canvas.getContext('webgl');
-        },
-        renderer: function () {
+        }
+
+        renderer() {
             if (this._renderer) return this._renderer;
             this._renderer = new THREE.WebGLRenderer(this.context3d());
             this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             return this._renderer;
-        },
-        camera: function () {
+        }
+
+        camera() {
             if (this._camera) return this._camera;
             this._camera = new THREE.PerspectiveCamera(45, this._viewer.viewport.getAspectRatio(), 1, 30000);
             this._camera.position.x = 0;
             this._camera.position.y = 0;
             this._camera.position.z = 1000;
             this._camera.updateProjectionMatrix();
-            console.log("three zoom", this._camera.zoom);
             return this._camera;
-        },
-        scene: function () {
+        }
+
+        scene() {
             return this._scene ? this._scene : new THREE.Scene();
-        },
-        sceneToWorld: function (x, y) {
+        }
+
+        sceneToWorld(x, y) {
             x = Math.round(x);
             y = Math.round(y);
             this._vec.set(
@@ -115,24 +107,36 @@
             var distance = - this._camera.position.z / this._vec.z;
             this._pos.copy(this._camera.position).add(this._vec.multiplyScalar(distance));
             return this._pos;
-        },
-        stats: function () {
-            if (this._stats) return this._stats;
+        }
 
+        stats() {
+            if (this._stats) return this._stats;
             this._stats = new Stats();
             this._stats.dom.style.left = 'unset';
             this._stats.dom.style.right = '0px';
             document.body.appendChild(this._stats.dom);
             return this._stats;
-        },
-        panZoom: function () {
-            return panzoom(this._camera, this._renderer.domElement);
-        },
-        clear: function () {
+        }
+
+        imagingHelper() {
+            this._imagingHelper = this._viewer.activateImagingHelper({
+                onImageViewChanged: event => {
+                    // console.log(event); // Debugging
+                    this._camera.position.x = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
+                    this._camera.position.y = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
+                    this._camera.position.z = (event.viewportHeight / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
+
+                    this._camera.updateProjectionMatrix();
+                    // console.log(this._camera.position); // Debugging
+                }
+            });
+        }
+
+        clear() {
             // TODO: check what needs to be added here
-        },
+        }
         // ----------
-        resize: function () { // TODO
+        resize() { // TODO
             if (this._containerWidth !== this._viewer.container.clientWidth) {
                 this._containerWidth = this._viewer.container.clientWidth;
                 this._canvasdiv.setAttribute('width', this._containerWidth);
@@ -145,8 +149,9 @@
                 this._canvas.setAttribute('height', this._containerHeight);
                 // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
-        },
-        resizecanvas: function () {// TODO
+        }
+
+        resizecanvas() {// TODO
             this._canvasdiv.setAttribute('width', this._containerWidth);
             this._canvas.setAttribute('width', this._containerWidth);
             this._canvasdiv.setAttribute('height', this._containerHeight);
@@ -159,5 +164,6 @@
             var center = this._viewer.viewport.viewportToImageCoordinates(this._viewer.viewport.getCenter(true));
             // paper.view.center = new paper.Point(center.x, center.y);
         }
-    };
+
+    }
 })();
