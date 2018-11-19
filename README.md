@@ -20,10 +20,17 @@ To add Three.js overlay capability to your OpenSeadragon Viewer, call `threejsOv
 `````javascript
     var viewer = new OpenSeadragon.Viewer(...);
     var overlay = viewer.threejsOverlay();
-    var renderer = overlay.renderer();
-    var camera = overlay.camera();
-    var scene = overlay.scene();
-    var stats = overlay.stats();
+    
+     // Initialize Threejs variables
+     var renderer = overlay.renderer();
+     var camera = overlay.camera();
+     var scene = overlay.scene();
+     
+     // Performance Monitor
+     var stats = overlay.stats();
+     
+     // openseadragon Imaging helper
+     var imagingHelper = overlay.imagingHelper(); // onImageViewChanged already attached
 `````
 
 This will initalize and return a threejs environment complete with a WebGLRenderer, scene, and camera.
@@ -36,3 +43,4 @@ The new object is returned return with the following methods:
 * `camera()`: Returns a Threejs [PerspectiveCamera](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera)
 * `scene()`: Returns a Threejs [Scene](https://threejs.org/docs/#api/en/scenes/Scene)
 * `stats()`: Returns a Javascript Performance monitor [stats.js](https://github.com/mrdoob/stats.js/)
+* `imagingHelper()`: Returns the [openseadragonImagingHelper](https://github.com/msalsbery/OpenSeadragonImagingHelper). onImageViewChanged event is already attached and is used to sync the osd viewport to threejs camera system.
