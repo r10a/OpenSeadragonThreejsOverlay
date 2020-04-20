@@ -122,10 +122,31 @@
             this._imagingHelper = this._viewer.activateImagingHelper({
                 onImageViewChanged: event => {
                     // console.log(event); // Debugging
-                    this._camera.position.x = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
-                    this._camera.position.y = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
-                    this._camera.position.z = (event.viewportHeight / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
-
+                    
+                    const rot = this._viewer.viewport.getRotation();
+                    
+                    if (rot == 0) {
+                        this._camera.position.x = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
+                        this._camera.position.y = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
+                        this._camera.position.z = 
+                        (event.viewportHeight / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
+                    } else if(rot == 180) {
+                        this._camera.position.x = event.eventSource.imgWidth * (0.5 - event.viewportCenter.x);
+                        this._camera.position.y = event.eventSource.imgHeight * (event.viewportCenter.y - 0.5);
+                        this._camera.position.z = 
+                        (event.viewportHeight / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgHeight;
+                    } else if (rot == 90) {
+                        this._camera.position.x = event.eventSource.imgHeight * (0.5 - event.viewportCenter.y);
+                        this._camera.position.y = event.eventSource.imgWidth * (0.5 - event.viewportCenter.x);
+                        this._camera.position.z = 
+                        (event.viewportWidth / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgWidth;
+                    } else if(rot == 270) {
+                        this._camera.position.x = event.eventSource.imgHeight * (event.viewportCenter.y - 0.5);
+                        this._camera.position.y = event.eventSource.imgWidth * (event.viewportCenter.x - 0.5);
+                        this._camera.position.z =
+                            (event.viewportWidth / 2) / Math.tan((this._camera.fov * Math.PI / 180) / 2) * event.eventSource.imgWidth;
+                    }
+                    
                     this._camera.updateProjectionMatrix();
                     // console.log(this._camera.position); // Debugging
                 }
@@ -141,13 +162,13 @@
                 this._containerWidth = this._viewer.container.clientWidth;
                 this._canvasdiv.setAttribute('width', this._containerWidth);
                 this._canvas.setAttribute('width', this._containerWidth);
-                // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
             if (this._containerHeight !== this._viewer.container.clientHeight) {
                 this._containerHeight = this._viewer.container.clientHeight;
                 this._canvasdiv.setAttribute('height', this._containerHeight);
                 this._canvas.setAttribute('height', this._containerHeight);
-                // this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
+                this._renderer.setSize(this._viewer.container.clientWidth, this._viewer.container.clientHeight);
             }
         }
 
@@ -163,6 +184,12 @@
             // paper.view.zoom = image1.viewportToImageZoom(viewportZoom);
             var center = this._viewer.viewport.viewportToImageCoordinates(this._viewer.viewport.getCenter(true));
             // paper.view.center = new paper.Point(center.x, center.y);
+            
+            // Update camera aspect ratio on resize
+            this._camera.aspect = this._containerWidth / this._containerHeight;
+            this._camera.updateProjectionMatrix();
+
+            this._renderer.setSize(this._containerWidth, this._containerHeight);
         }
 
     }
